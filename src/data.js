@@ -1,5 +1,7 @@
 import {makeIndex} from "./lib/utils.js";
 
+const BASE_URL = 'http://localhost:3000/api'; // Адрес сервера
+
 export function initData(sourceData) {
     // Локальные индексы и кеш
     let sellers;
@@ -24,9 +26,14 @@ export function initData(sourceData) {
         total: item.total_amount
     }));
 
-    // Получение индексов из локальных данных
+    // Получение индексов с сервера
     const getIndexes = async () => {
-        ensureIndexes();
+        if (!sellers || !customers) {
+            [sellers, customers] = await Promise.all([
+                fetch(`${BASE_URL}/sellers`).then(res => res.json()),
+                fetch(`${BASE_URL}/customers`).then(res => res.json()),
+            ]);
+        }
         return { sellers, customers };
     };
 
